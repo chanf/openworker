@@ -25,5 +25,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
     timeout: 120_000,
+    // Force English so the live specs' English text assertions hold on any host locale.
+    env: { ...process.env, VITE_DEFAULT_LOCALE: "en" },
   },
 });

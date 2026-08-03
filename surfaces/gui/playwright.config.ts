@@ -17,10 +17,13 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    // Dev server on a dedicated port so it never collides with a running `npm run dev` (5173).
+    // Dev server on a dedicated port so it never collides with a running `npm run dev`.
     command: `npm run dev -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // The specs assert English UI text; force English regardless of the host/browser locale
+    // (the app auto-detects zh on zh-locale machines). See locale.ts detectLang.
+    env: { ...process.env, VITE_DEFAULT_LOCALE: "en" },
   },
 });
