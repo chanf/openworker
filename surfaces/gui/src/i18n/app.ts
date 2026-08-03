@@ -43,6 +43,7 @@ export const en = {
     assistantLabel: "assistant",
     jumpToLatest: "Jump to latest",
     waitingForAgent: "Waiting for agent...",
+    compactingContext: "Compacting context…",
 
     // Composer placeholders
     placeholderCode: "Ask the coder to build, fix, or explain…  (drop or paste files)",
@@ -109,6 +110,7 @@ export const zh = {
     assistantLabel: "助手",
     jumpToLatest: "跳到最新",
     waitingForAgent: "正在等待 agent...",
+    compactingContext: "正在压缩上下文…",
 
     // Composer placeholders
     placeholderCode: "让程序员构建、修复或解释… （拖入或粘贴文件）",
