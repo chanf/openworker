@@ -35,4 +35,20 @@ describe("Markdown artifact links", () => {
     render(<Markdown text="[](artifact:out/report.pdf)" />);
     expect(screen.getByTestId("artifact-chip").textContent).toContain("report.pdf");
   });
+
+  it("decodes a percent-encoded CJK path so the server gets the real filename", () => {
+    const seen: string[] = [];
+    const listener = (e: Event) => seen.push((e as CustomEvent).detail.path);
+    window.addEventListener(OPEN_ARTIFACT_EVENT, listener);
+
+    // react-markdown percent-encodes non-ASCII in the link destination (CommonMark URL
+    // normalization), so a Chinese filename arrives as %E5%AD%A3…. The chip must decode it
+    // back to the real filename before dispatching, or the server looks for a literally-
+    // named "%E5…" file and open/read fails.
+    render(<Markdown text="完成 — [季度报告](artifact:reports/季度报告.pdf)" />);
+    fireEvent.click(screen.getByTestId("artifact-chip"));
+    expect(seen).toEqual(["reports/季度报告.pdf"]);
+
+    window.removeEventListener(OPEN_ARTIFACT_EVENT, listener);
+  });
 });

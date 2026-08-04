@@ -47,7 +47,19 @@ export function Markdown({ text }: { text: string }) {
           a: ({ node: _n, href, children, ...props }) => {
             if (href?.startsWith("artifact:")) {
               const title = Array.isArray(children) ? children.join("") : String(children ?? "");
-              return <ArtifactChip path={href.slice("artifact:".length)} title={title} />;
+              // react-markdown percent-encodes non-ASCII in link destinations (CommonMark URL
+              // normalization), so a CJK filename arrives as %E5%AD%A3…. Decode it back to the
+              // real filename before handing it to the viewer, or the server looks for a
+              // literally-named "%E5…" file and open/read fail. Fall back to the raw string if
+              // the sequence is malformed (a stray '%' with no valid hex pair).
+              const rawPath = href.slice("artifact:".length);
+              let path = rawPath;
+              try {
+                path = decodeURIComponent(rawPath);
+              } catch {
+                path = rawPath;
+              }
+              return <ArtifactChip path={path} title={title} />;
             }
             return (
               <a href={href} {...props} target="_blank" rel="noreferrer">
