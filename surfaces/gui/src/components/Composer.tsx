@@ -335,6 +335,9 @@ export function Composer(props: Props) {
   };
 
   const onKey = (e: React.KeyboardEvent) => {
+    // IME 组字期间（含确认候选词的回车）一律交给输入法，不触发斜杠命令或发送：
+    // isComposing 是标准合成状态标志，keyCode 229 兜底旧浏览器/旧输入法。
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
     if (slashQuery !== null) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
