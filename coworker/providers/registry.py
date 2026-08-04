@@ -210,6 +210,27 @@ def _openai_compat(vendor: str, default_base_url: str, env_key: Optional[str] = 
     return build
 
 
+def _build_openai_compat_endpoint(
+    profile: dict[str, Any], secrets: Any
+) -> ProviderClient:
+    """Generic OpenAI-compatible endpoint the user points at themselves (vLLM, SiliconFlow,
+    OpenRouter, agnes-ai, a local server, an internal gateway…). `base_url` AND `api_key` are
+    BOTH user-supplied — there is no vendor default to fall back on and no env var to inherit,
+    so a missing either fails fast. Deliberately does NOT use the OpenAI env/SecretStore
+    fallback (`resolve_api_key`), so a configured OpenAI key is never silently sent to a
+    third-party endpoint. Reuses `OpenAIProvider` (Chat Completions), the compat workhorse."""
+    p = profile or {}
+    base_url = (p.get("base_url") or "").strip()
+    api_key = (p.get("api_key") or "").strip()
+    if not base_url:
+        raise RuntimeError(
+            "No endpoint configured — enter the OpenAI-compatible Base URL."
+        )
+    if not api_key:
+        raise RuntimeError("No API key configured — add it in Settings ▸ Models.")
+    return OpenAIProvider(api_key=api_key, base_url=base_url)
+
+
 def _compat(
     name: str,
     title: str,
@@ -549,6 +570,28 @@ DESCRIPTORS: list[ProviderDescriptor] = [
         base_url="https://openrouter.ai/api/v1",
         recommended_model="z-ai/glm-5.2",
         env_key="OPENROUTER_API_KEY",
+    ),
+    ProviderDescriptor(
+        name="openai-compat",
+        title="OpenAI 兼容 (自定义端点)",
+        needs_key=True,
+        fields=[
+            ProviderField(
+                "base_url",
+                "Base URL",
+                required=True,
+                placeholder="https://api.example.com/v1",
+                help="任何兼容 OpenAI /v1/chat/completions 的服务（vLLM、硅基流动、OpenRouter、agnes-ai、本地推理、企业网关等）。请包含 /v1 路径。",
+            ),
+            ProviderField(
+                "api_key",
+                "API key",
+                secret=True,
+            ),
+        ],
+        build=_build_openai_compat_endpoint,
+        recommended_model=None,
+        blurb="指向任意 OpenAI 兼容端点；保存后在「添加模型」里填写该端点支持的模型名。",
     ),
     ProviderDescriptor(
         name="ollama",

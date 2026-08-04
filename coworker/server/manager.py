@@ -1555,6 +1555,18 @@ class SessionManager:
         "qwen": ["qwen3-max", "qwen3-coder-plus", "qwen-plus"],
         "xai": ["grok-4.3", "grok-4"],
         "mistral": ["mistral-large-latest", "mistral-small-latest"],
+        # Generic OpenAI-compatible endpoint: common public model names as free-text hints
+        # only (the user's endpoint may serve anything). See providers/registry.py.
+        "openai-compat": [
+            "gpt-4o",
+            "gpt-4o-mini",
+            "deepseek-chat",
+            "deepseek-reasoner",
+            "Qwen/Qwen2.5-72B-Instruct",
+            "glm-4.5",
+            "agnes-2.5-pro",
+            "agnes-2.5-flash",
+        ],
     }
 
     def _suggested_models(self, name: str) -> list[str]:

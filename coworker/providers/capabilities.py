@@ -29,6 +29,15 @@ def capabilities_for(model: str) -> ModelCapabilities:
             tools=True, vision=False, parallel_tool_calls=False, streaming=True
         )
 
+    # Generic OpenAI-compatible endpoint (vLLM, SiliconFlow, OpenRouter, agnes-ai, …): it
+    # fronts anything, so assume tool calling + streaming work (the OpenAI-compatible wire
+    # guarantees them in practice) and stay conservative on vision/parallel until the user
+    # confirms per model.
+    if provider == "openai-compat":
+        return ModelCapabilities(
+            tools=True, vision=False, parallel_tool_calls=False, streaming=True
+        )
+
     # Cloud-account providers (custom-added ids; curated ones answered from the matrix).
     # The family segment decides: Claude keeps its native capabilities; everything else
     # stays conservative until probed (Converse tool calling works across families, but
